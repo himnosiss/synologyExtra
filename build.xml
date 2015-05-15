@@ -1,0 +1,17 @@
+<project basedir="." default="copy">
+
+	<target name="mavenBuild">
+
+		<exec executable="cmd">
+			<arg value="/C" />
+			<arg value="C:\apache-maven-3.2.3\bin\mvn.bat" />
+			<arg line="clean install tomcat7:redeploy" />
+		</exec>
+	</target>
+	
+	<target name="copy">
+		<copy todir="T:\\synologyExtra">
+			<fileset dir="src/main/webapp"/>
+		</copy>
+	</target>
+</project>
