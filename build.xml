@@ -1,4 +1,4 @@
-<project basedir="." default="copy">
+<project basedir="." default="copy_w">
 
 	<target name="mavenBuild">
 
@@ -14,4 +14,10 @@
 			<fileset dir="src/main/webapp"/>
 		</copy>
 	</target>
+	
+	<target name="copy_w">
+			<copy todir="/home/bbala/apache-tomcat-8.0.15/webapps/synologyExtra/">
+				<fileset dir="src/main/webapp"/>
+			</copy>
+		</target>
 </project>
