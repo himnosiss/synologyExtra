@@ -9,23 +9,23 @@
 		function validateForm() {
 			var form = document.forms["queryForm"];
 
-			// 			var fieldValue = form["query"].value;
-			// 			if (fieldValue == null || fieldValue == "") {
-			// 				alert("Query string must be filled out");
-			// 				return false;
-			// 			}
+			var fieldValue = form["query"].value;
+			if (fieldValue == null || fieldValue == "") {
+				alert("Query string must be filled out");
+				return false;
+			}
 
-			// 			var fieldValue = form["serie"].value;
-			// 			if (fieldValue == null || fieldValue == "") {
-			// 				alert("Serie string must be filled out");
-			// 				return false;
-			// 			}
+			var fieldValue = form["serie"].value;
+			if (fieldValue == null || fieldValue == "") {
+				alert("Serie string must be filled out");
+				return false;
+			}
 
-			// 			var fieldValue = form["serie"].value;
-			// 			if (!/^[1-9]+\d*$/.test(fieldValue)) {
-			// 				alert("Serie must be a number without leading zeros");
-			// 				return false;
-			// 			}
+			var fieldValue = form["serie"].value;
+			if (!/^[1-9]+\d*$/.test(fieldValue)) {
+				alert("Serie must be a number without leading zeros");
+				return false;
+			}
 
 			var fieldValue = form["firstEpisode"].value;
 			if ((fieldValue != null && fieldValue != "")
@@ -93,12 +93,12 @@
 		<table>
 			<tr>
 				<td><label>Query string:</label></td>
-				<td><input type="text" name="query" size="50"></td>
+				<td><input type="text" name="query" size="50" value="test test test"></td>
 			</tr>
 			<tr>
 				<td><label>Series number:</label></td>
 				<td><input type="text" name="serie" title="Series name"
-					size="50"></td>
+					size="50" value="1"></td>
 			</tr>
 			<tr>
 				<td><label>Starting episode:</label></td>
