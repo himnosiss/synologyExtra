@@ -83,7 +83,29 @@
 					document.forms["queryForm"]["firstEpisode"].removeAttribute("disabled");
 					document.forms["queryForm"]["lastEpisode"].removeAttribute("disabled");
 				}
-				document.forms["queryForm"]["latestEpisodes"].setAttribute(b"disabled", true);
+				document.forms["queryForm"]["latestEpisodes"].setAttribute("disabled", "disabled");
+			}
+		}
+		
+	function categoryChanged(control) {
+			if (control.value!="serie") {
+				for(var i =0;i<document.forms["queryForm"].length;i++){
+					if(document.forms["queryForm"][i].name!="query" && document.forms["queryForm"][i].name!="category"){
+						document.forms["queryForm"][i].setAttribute("disabled", "disabled");
+					}
+				}
+			} else {
+				for(var i =0;i<document.forms["queryForm"].length;i++){
+					if(document.forms["queryForm"][i].name!="query" && document.forms["queryForm"][i].name!="category"){
+						document.forms["queryForm"][i].removeAttribute("disabled");
+						if(!document.forms["queryForm"]["onlyAgregated"].checked){
+							document.forms["queryForm"]["firstEpisode"].removeAttribute("disabled");
+							document.forms["queryForm"]["lastEpisode"].removeAttribute("disabled");
+							continue
+						}
+					}
+				}
+				document.forms["queryForm"]["latestEpisodes"].setAttribute("disabled", "disabled");
 			}
 		}
 	</script>
@@ -92,8 +114,17 @@
 		onsubmit="return validateForm()">
 		<table>
 			<tr>
+				<td><label>Category:</label></td>
+				<td><select name="category" onchange="categoryChanged(this)" >
+						<option value="serie" label="Series" selected="selected">
+						<option value="movie" label="Movie">
+						<option value="song" label="Song">
+				</select></td>
+			</tr>
+			<tr>
 				<td><label>Query string:</label></td>
-				<td><input type="text" name="query" size="50" value="test test test"></td>
+				<td><input type="text" name="query" size="50"
+					value="test test test"></td>
 			</tr>
 			<tr>
 				<td><label>Series number:</label></td>

@@ -1,8 +1,9 @@
 package ro.bogdan.synology;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,84 +12,72 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import ro.bogdan.synology.engine.Searchable;
 import ro.bogdan.synology.search.Search;
+import ro.bogdan.synology.search.impl.Filelist;
 
 @WebServlet("/searchSeries")
 public class SearchSeries extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static final int DEFAULT_ZFILL_LENGTH = 2;
-
-	@Inject
-	Search searchEngine;
+	Search searchEngine = new Filelist();
 
 	private final Logger logger = Logger.getLogger(SearchSeries.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		Searchable searchable = new Searchable();
+
 		String query = req.getParameter("query");
 		String serie = req.getParameter("serie");
 		String firstEpisode = req.getParameter("firstEpisode");
 		String lastEpisode = req.getParameter("lastEpisode");
-		Boolean ignoreMissing = false;
-		Boolean onlyFree = false;
-		Boolean onlyAgregated = false;
-		Boolean latestEpisode = true;
 		String latestEpisodes = req.getParameter("latestEpisodes");
+		String category = req.getParameter("category");
 
 		if (query != null) {
 			query = query.replaceAll("\\s", "\\.");
+			searchable.setQuery(query);
 		} else {
 			return;
 		}
-		if (serie != null) {
+		if (serie != null && serie.trim().length()>0) {
 			serie = serie.trim();
-			serie = zfill(serie, DEFAULT_ZFILL_LENGTH);
+			searchable.setSeariesNumber(Integer.parseInt(serie));
 		} else {
 			return;
 		}
-		if (firstEpisode != null && !firstEpisode.equals("")) {
-			firstEpisode = zfill(firstEpisode, DEFAULT_ZFILL_LENGTH);
+		
+		if (firstEpisode != null && firstEpisode.trim().length()>0) {
+			searchable.setStartEpisode(Integer.parseInt(firstEpisode.trim()));
 		}
-		if (lastEpisode != null && !lastEpisode.equals("")) {
-			lastEpisode = zfill(lastEpisode, DEFAULT_ZFILL_LENGTH);
+		if (lastEpisode != null && lastEpisode.trim().length()>0) {
+			searchable.setStopEpisode(Integer.parseInt(lastEpisode.trim()));
 		}
 
 		if (req.getParameter("ignoreMissing") != null && req.getParameter("ignoreMissing").equals("on")) {
-			ignoreMissing = true;
+			searchable.setIgnoreMissing(true);
+			
+		}
+		if ( category!= null && category.trim().length()>0) {
+			searchable.setCategory(category.trim());
 		}
 		if (req.getParameter("onlyFree") != null && req.getParameter("onlyFree").equals("on")) {
-			onlyFree = true;
+			searchable.setOnlyFreeDownloads(true);
 		}
 		if (req.getParameter("onlyAgregated") != null && req.getParameter("onlyAgregated").equals("on")) {
-			onlyAgregated = true;
+			searchable.setOnlyAgregated(true);
 		}
 		if (req.getParameter("latestEpisode") != null && req.getParameter("latestEpisode").equals("on")) {
-			latestEpisode = true;
+			searchable.setLatestEpisode(true);
 		}
-
-		String lg = "Params: query:" + query + " serie:" + serie + " firstEpisode:" + firstEpisode + " lastEpisode:"
-		        + lastEpisode + " ignore missing:" + ignoreMissing + " onlyFree:" + onlyFree + " onlyAgregated:" + onlyAgregated
-		        + " latestEpisode:" + latestEpisode + " latestEpisodes:" + latestEpisodes;
-
-		searchEngine.search(null);
-		resp.getOutputStream().print(lg + ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-	}
-
-	private String zfill(String serie, int length) {
-		if (serie.length() >= length) {
-			return serie;
+		if (latestEpisodes!=null && latestEpisodes.trim().length()>0) {
+			searchable.setLatestEpisodes(Integer.parseInt(latestEpisodes.trim()));
 		}
-		char[] result = new char[length];
-		char[] serieArray = serie.toCharArray();
-		for (int i = 0; i < result.length; i++) {
-			if (i < (result.length - serieArray.length)) {
-				result[i] = '0';
-			} else {
-				result[i] = serieArray[i - serieArray.length];
-			}
-		}
-		return String.valueOf(result);
+		List<URL> links = searchEngine.search(searchable);
+		
+		resp.getOutputStream().print(searchable.toString()+links);
+		resp.getOutputStream().close();
 	}
 
 	@Override

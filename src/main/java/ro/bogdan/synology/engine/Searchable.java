@@ -8,10 +8,13 @@ public class Searchable {
 	private Integer seariesNumber;
 	private Integer startEpisode;
 	private Integer stopEpisode;
-	private Integer latestEpisode;
-	private Boolean onlyFreeDownloads;
-	private Boolean onlyAgregated;
+	private Boolean latestEpisode = false;
+	private Integer latestEpisodes = 1;
+	private Boolean onlyFreeDownloads = false;
+	private Boolean onlyAgregated = false;
+	private Boolean ignoreMissing = false;
 	private String quality;
+	private String category;
 	private Map<String, Object> extraParams;
 
 	public String getQuality() {
@@ -54,14 +57,6 @@ public class Searchable {
 		this.stopEpisode = stopEpisode;
 	}
 
-	public Integer getLatestEpisode() {
-		return latestEpisode;
-	}
-
-	public void setLatestEpisode(Integer latestEpisode) {
-		this.latestEpisode = latestEpisode;
-	}
-
 	public Boolean getOnlyFreeDownloads() {
 		return onlyFreeDownloads;
 	}
@@ -93,4 +88,43 @@ public class Searchable {
 		this.extraParams.put(key, value);
 	}
 
+	public Boolean getLatestEpisode() {
+		return latestEpisode;
+	}
+
+	public void setLatestEpisode(Boolean latestEpisode) {
+		this.latestEpisode = latestEpisode;
+	}
+
+	public Integer getLatestEpisodes() {
+		return latestEpisodes;
+	}
+
+	public void setLatestEpisodes(Integer latestEpisodes) {
+		this.latestEpisodes = latestEpisodes;
+	}
+
+	public Boolean getIgnoreMissing() {
+		return ignoreMissing;
+	}
+
+	public void setIgnoreMissing(Boolean ignoreMissing) {
+		this.ignoreMissing = ignoreMissing;
+	}
+
+	@Override
+	public String toString() {
+		return "query:" + query + " serie:" + seariesNumber + " firstEpisode:" + startEpisode + " lastEpisode:"
+		        + stopEpisode + " ignore missing:" + ignoreMissing + " onlyFree:" + onlyFreeDownloads + " onlyAgregated:" + onlyAgregated
+		        + " latestEpisode:" + latestEpisode + " latestEpisodes:" + latestEpisodes;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	
 }
