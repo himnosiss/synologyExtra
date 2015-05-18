@@ -71,8 +71,8 @@ public class SearchSeries extends HttpServlet {
 		        + lastEpisode + " ignore missing:" + ignoreMissing + " onlyFree:" + onlyFree + " onlyAgregated:" + onlyAgregated
 		        + " latestEpisode:" + latestEpisode + " latestEpisodes:" + latestEpisodes;
 
-		String x = searchEngine.search("sdsds");
-		resp.getOutputStream().print(lg + ">>>>>>>>>>>>>>>>>>>>>>>>>>>>" + x);
+		searchEngine.search(null);
+		resp.getOutputStream().print(lg + ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	}
 
 	private String zfill(String serie, int length) {
