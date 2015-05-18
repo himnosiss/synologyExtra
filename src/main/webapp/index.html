@@ -5,9 +5,146 @@
 <title>search</title>
 </head>
 <body>
-<form action="searchSeries" method="post">
-    <input type="text" name="query">
-    <input type="submit" value="Search">
-</form>
+	<script type="text/javascript">
+		function validateForm() {
+			var form = document.forms["queryForm"];
+
+			// 			var fieldValue = form["query"].value;
+			// 			if (fieldValue == null || fieldValue == "") {
+			// 				alert("Query string must be filled out");
+			// 				return false;
+			// 			}
+
+			// 			var fieldValue = form["serie"].value;
+			// 			if (fieldValue == null || fieldValue == "") {
+			// 				alert("Serie string must be filled out");
+			// 				return false;
+			// 			}
+
+			// 			var fieldValue = form["serie"].value;
+			// 			if (!/^[1-9]+\d*$/.test(fieldValue)) {
+			// 				alert("Serie must be a number without leading zeros");
+			// 				return false;
+			// 			}
+
+			var fieldValue = form["firstEpisode"].value;
+			if ((fieldValue != null && fieldValue != "")
+					&& !/^[1-9]+\d*$/.test(fieldValue)) {
+				alert("First episode must be a number without leading zeros");
+				return false;
+			}
+
+			var fieldValue = form["lastEpisode"].value;
+			if ((fieldValue != null && fieldValue != "")
+					&& !/^[1-9]+\d*$/.test(fieldValue)) {
+				alert("Last episode must be a number without leading zeros");
+				return false;
+			}
+
+			var field = form["ignoreMissing"];
+			if (field.checked) {
+				//true if only checked
+			} else {
+
+				var fieldValue = form["firstEpisode"].value;
+				if (fieldValue == null || fieldValue == "") {
+					alert("First episode can not be empty");
+					return false;
+				}
+
+				var fieldValue = form["lastEpisode"].value;
+				if (fieldValue == null || fieldValue == "") {
+					alert("Last episode can not be empty");
+					return false;
+				}
+			}
+		}
+
+		function onlyAgregatedChanged(control) {
+			if (control.checked) {
+				document.forms["queryForm"]["firstEpisode"].setAttribute("disabled", "disabled");
+				document.forms["queryForm"]["lastEpisode"].setAttribute("disabled", "disabled");
+			} else {
+				if(!document.forms["queryForm"]["latestEpisode"].checked){
+					document.forms["queryForm"]["firstEpisode"].removeAttribute("disabled");
+					document.forms["queryForm"]["lastEpisode"].removeAttribute("disabled");
+				}
+			}
+		}
+
+		function latestEpisodeChanged(control) {
+			
+			if (control.checked) {
+				document.forms["queryForm"]["firstEpisode"].setAttribute("disabled", "disabled");
+				document.forms["queryForm"]["lastEpisode"].setAttribute("disabled", "disabled");
+				document.forms["queryForm"]["latestEpisodes"].removeAttribute("disabled");
+			} else {
+				if(!document.forms["queryForm"]["onlyAgregated"].checked){
+					document.forms["queryForm"]["firstEpisode"].removeAttribute("disabled");
+					document.forms["queryForm"]["lastEpisode"].removeAttribute("disabled");
+				}
+				document.forms["queryForm"]["latestEpisodes"].setAttribute(b"disabled", true);
+			}
+		}
+	</script>
+
+	<form name="queryForm" action="searchSeries" method="post"
+		onsubmit="return validateForm()">
+		<table>
+			<tr>
+				<td><label>Query string:</label></td>
+				<td><input type="text" name="query" size="50"></td>
+			</tr>
+			<tr>
+				<td><label>Series number:</label></td>
+				<td><input type="text" name="serie" title="Series name"
+					size="50"></td>
+			</tr>
+			<tr>
+				<td><label>Starting episode:</label></td>
+				<td><input type="text" name="firstEpisode"
+					title="The first episode in the series" value="1" size="50"></td>
+			</tr>
+			<tr>
+				<td><label>Ending episode:</label></td>
+				<td><input type="text" name="lastEpisode"
+					title="The last episode in the series" value="99" size="50"></td>
+			</tr>
+			<tr>
+				<td><label>Ignore missing:</label></td>
+				<td><input type="checkbox" name="ignoreMissing" checked
+					title="Ignore missing file in the list. Choosing not to skip will enforce you to give the first and the last episode of the series."></td>
+			</tr>
+			<tr>
+				<td><label>Only freeleech:</label></td>
+				<td><input type="checkbox" name="onlyFree"
+					title="Only freeleech files"></td>
+			</tr>
+			<tr>
+				<td><label>Full season only:</label></td>
+				<td><input type="checkbox" name="onlyAgregated"
+					onchange="onlyAgregatedChanged(this)"
+					title="Search for the entire season file"></td>
+			</tr>
+			<tr>
+				<td><label>Only the latest episode:</label></td>
+				<td><input type="checkbox" name="latestEpisode"
+					onchange="latestEpisodeChanged(this)"
+					title='Only the latest episodes. Default to last 1 if latest episodes is not used'></td>
+			</tr>
+			<tr>
+				<td><label>Latest episodes:</label></td>
+				<td><input type="text" name="latestEpisodes"
+					title='The latest "n" episodes' value="1" size="50"
+					disabled="disabled"></td>
+			</tr>
+			<tr>
+
+				<td colspan="2"><input type="submit" value="Search"
+					style="float: right;"></td>
+			</tr>
+
+		</table>
+	</form>
 </body>
 </html>
