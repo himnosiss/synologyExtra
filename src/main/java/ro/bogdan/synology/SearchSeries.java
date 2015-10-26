@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import ro.bogdan.synology.engine.Searchable;
+import ro.bogdan.synology.engine.beans.Searchable;
 import ro.bogdan.synology.search.Search;
 import ro.bogdan.synology.search.impl.Filelist;
 

@@ -1,4 +1,4 @@
-package ro.bogdan.synology.engine;
+package ro.bogdan.synology.engine.beans;
 
 import java.util.HashMap;
 import java.util.Map;
