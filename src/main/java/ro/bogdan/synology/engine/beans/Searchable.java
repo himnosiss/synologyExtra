@@ -16,6 +16,7 @@ public class Searchable {
 	private String quality;
 	private String category;
 	private Map<String, Object> extraParams;
+	private Long sleepTime = 20000L;
 
 	public String getQuality() {
 		return quality;
@@ -126,5 +127,13 @@ public class Searchable {
 	public void setCategory(String category) {
 		this.category = category;
 	}
+
+    public Long getSleepTime() {
+        return sleepTime;
+    }
+
+    public void setSleepTime(Long sleepTime) {
+        this.sleepTime = sleepTime;
+    }
 	
 }

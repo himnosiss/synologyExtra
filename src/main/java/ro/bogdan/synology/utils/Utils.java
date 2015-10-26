@@ -55,7 +55,7 @@ public class Utils {
             return null;
         }
         StringBuilder content = new StringBuilder();
-        Reader r = new FileReader("/home/bbala/test/the.big.bang.html");
+        Reader r = new FileReader("/home/bbala/test/searchin=1&sort=0&cat=21&search=the.big.bang&page="+url.getQuery().substring(url.getQuery().length()-1));
         BufferedReader in = new BufferedReader(r);
         String inputLine;
         while ((inputLine = in.readLine()) != null) {

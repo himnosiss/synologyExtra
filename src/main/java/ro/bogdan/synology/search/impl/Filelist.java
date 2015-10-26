@@ -26,15 +26,16 @@ public class Filelist implements Search {
         Searchable s = new Searchable();
         s.setCategory("serie");
         s.setIgnoreMissing(true);
-        s.setLatestEpisode(true);
+        s.setLatestEpisode(false);
         s.setLatestEpisodes(5);
-        s.setOnlyAgregated(true);
+        s.setOnlyAgregated(false);
         s.setOnlyFreeDownloads(true);
-        s.setQuality("hd");
+        s.setQuality("full_hd");
         s.setQuery("the.big.bang");
-        s.setSeariesNumber(9);
-        s.setStartEpisode(1);
-        s.setStopEpisode(10);
+        s.setSeariesNumber(8);
+        s.setStartEpisode(0);
+        s.setStopEpisode(99);
+        s.setSleepTime(0L);
         Filelist f = new Filelist();
         f.search(s);
     }
@@ -53,7 +54,8 @@ public class Filelist implements Search {
             int i = 0;
             while (!end && i < 10) {
                 URL url = grabNextPage(urlString + search.getQuery(), i);
-                String content = Utils.download(url);
+                // String content = Utils.download(url);
+                String content = Utils.downloadFile(url);
                 if (content == null) {
                     break;
                 }
@@ -67,7 +69,7 @@ public class Filelist implements Search {
 
                 // need this to simulate human behavior
                 try {
-                    Thread.sleep(20000);
+                    Thread.sleep(search.getSleepTime());
                 } catch (InterruptedException e) {
                 }
             }
@@ -80,12 +82,12 @@ public class Filelist implements Search {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        List<URL> filtered = filterResults(result, search);
+        List<URL> filtered = (List<URL>) filterResults(result, search)[1];
         return filtered;
     }
 
-    private List<URL> filterResults(List<SearchedItem> result, Searchable search) {
-
+    private Object[] filterResults(List<SearchedItem> result, Searchable search) {
+        Object[] outcome = new Object[2];
         List<SearchedItem> filtered = new ArrayList<SearchedItem>();
 
         // let's filter a bit the results
@@ -118,38 +120,67 @@ public class Filelist implements Search {
                 continue;
             }
             // end block
-
-            if (!(search.getStartEpisode() <= searchedItem.episode && searchedItem.episode <= search.getStopEpisode())) {
-                continue;
-            }
             filtered.add(searchedItem);
         }
 
-        // get latest EP
+        // deal with the episodes request
         Integer latestEp = filtered.get(0).episode;
         for (SearchedItem searchedItem : filtered) {
             if (searchedItem.episode > latestEp) {
                 latestEp = searchedItem.episode;
             }
         }
-        
+
+        // searching for the latest episode or the last X episodes
         List<SearchedItem> filtered2 = new ArrayList<SearchedItem>();
-        if (search.getLatestEpisodes()!=null) {
-            for (SearchedItem searchedItem : filtered) {
-                if (((latestEp-search.getLatestEpisodes())<=searchedItem.episode) && (searchedItem.episode <= latestEp)) {
-                    filtered2.add(searchedItem);
+        if (search.getLatestEpisode() != null || search.getLatestEpisodes() != null) {
+            if (search.getLatestEpisodes() != null) {
+                for (SearchedItem searchedItem : filtered) {
+                    if (((latestEp - search.getLatestEpisodes()) <= searchedItem.episode) && (searchedItem.episode <= latestEp)) {
+                        filtered2.add(searchedItem);
+                    }
+                }
+            } else if (search.getLatestEpisode()) {
+                for (SearchedItem searchedItem : filtered) {
+                    if (searchedItem.episode == latestEp) {
+                        filtered2.add(searchedItem);
+                    }
                 }
             }
-            
-        }else if (search.getLatestEpisode()) {
-            for (SearchedItem searchedItem : filtered) {
-                if (searchedItem.episode == latestEp) {
-                    filtered2.add(searchedItem);
+            filtered2 = cleanDuplicates(filtered2);
+            if (!search.getIgnoreMissing()) {
+                if (filtered2.size() != search.getLatestEpisodes()) {
+                    log.error("Missing episodes in the list");
+                    outcome[1] = "Missing episodes in the list";
+                    return outcome;
                 }
             }
+            outcome[0] = filtered2;
+            return outcome;
         }
 
-        return null;
+        filtered2 = new ArrayList<SearchedItem>();
+        for (SearchedItem searchedItem : filtered) {
+            if (!(searchedItem.episode != null && search.getStartEpisode() <= searchedItem.episode && searchedItem.episode <= search
+                    .getStopEpisode())) {
+                continue;
+            }
+            filtered2.add(searchedItem);
+        }
+        filtered2 = cleanDuplicates(filtered2);
+        if (!search.getIgnoreMissing()) {
+            if (filtered2.size() != (search.getStopEpisode() - search.getStartEpisode())) {
+                log.error("Missing episodes in the list");
+                outcome[1] = "Missing episodes in the list";
+                return outcome;
+            }
+        }
+        outcome[0] = filtered2;
+        return outcome;
+    }
+
+    private List<SearchedItem> cleanDuplicates(List<SearchedItem> filtered2) {
+        return filtered2;
     }
 
     private URL grabNextPage(String url, int counter) {
@@ -198,7 +229,7 @@ public class Filelist implements Search {
             searched.season = grabSeason(url);
             searched.episode = grabEpisode(url);
             searched.quality = grabQuality(url);
-            if (searched.season != null && searched.episode == null) {
+            if (searched.season != null && searched.season.length > 0 && searched.episode == null) {
                 searched.agregated = true;
             }
             searches.add(searched);
