@@ -110,15 +110,14 @@
 		}
 	</script>
 
-	<form name="queryForm" action="searchSeries" method="post"
-		onsubmit="return validateForm()">
+	<form name="queryForm" action="searchSeries" method="post" onsubmit="return validateForm()">
 		<table>
 			<tr>
 				<td><label>Category:</label></td>
 				<td><select name="category" onchange="categoryChanged(this)" >
-						<option value="serie" label="Series" selected="selected">
-						<option value="movie" label="Movie">
-						<option value="song" label="Song">
+						<option value="serie" selected="selected">Series</option>
+						<option value="movie">Movie</option>
+						<option value="song">Song</option>
 				</select></td>
 			</tr>
 			<tr>
@@ -144,7 +143,7 @@
 			<tr>
 				<td><label>Ignore missing:</label></td>
 				<td><input type="checkbox" name="ignoreMissing" checked
-					title="Ignore missing file in the list. Choosing not to skip will enforce you to give the first and the last episode of the series."></td>
+				title="Ignore missing file in the list. This works only with start-stop interval or  last episodes in the serie"></td>
 			</tr>
 			<tr>
 				<td><label>Only freeleech:</label></td>
@@ -159,15 +158,21 @@
 			</tr>
 			<tr>
 				<td><label>Only the latest episode:</label></td>
-				<td><input type="checkbox" name="latestEpisode"
-					onchange="latestEpisodeChanged(this)"
+				<td><input type="checkbox" name="latestEpisode" onchange="latestEpisodeChanged(this)"
 					title='Only the latest episodes. Default to last 1 if latest episodes is not used'></td>
+			</tr>
+			<tr>
+				<td><label>Quality:</label></td>
+				<td><select name="quality" >
+						<option value="half_hd" selected="selected">740</option>
+						<option value="full_hd">1080</option>
+						<option value="sd">480</option>
+				</select></td>
 			</tr>
 			<tr>
 				<td><label>Latest episodes:</label></td>
 				<td><input type="text" name="latestEpisodes"
-					title='The latest "n" episodes' value="1" size="50"
-					disabled="disabled"></td>
+					title='The latest "n" episodes' value="1" size="50" disabled="disabled"></td>
 			</tr>
 			<tr>
 

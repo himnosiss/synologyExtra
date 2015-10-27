@@ -50,10 +50,10 @@ public class Utils {
     public static String downloadFile(URL url) throws IOException {
         log.debug("URL: " + url.toString());
 
-        //TO STOP AT THE SECOND PAGE
-        if (url.toString().indexOf("page=2")!=-1) {
-            return null;
-        }
+//        //TO STOP AT THE SECOND PAGE
+//        if (url.toString().indexOf("page=2")!=-1) {
+//            return null;
+//        }
         StringBuilder content = new StringBuilder();
         Reader r = new FileReader("/home/bbala/test/searchin=1&sort=0&cat=21&search=the.big.bang&page="+url.getQuery().substring(url.getQuery().length()-1));
         BufferedReader in = new BufferedReader(r);

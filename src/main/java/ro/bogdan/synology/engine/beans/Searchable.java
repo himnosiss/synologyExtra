@@ -5,16 +5,16 @@ import java.util.Map;
 
 public class Searchable {
 	private String query;
-	private Integer seariesNumber;
-	private Integer startEpisode;
-	private Integer stopEpisode;
+	private Integer seariesNumber = null;
+	private Integer startEpisode = null;
+	private Integer stopEpisode = null;
 	private Boolean latestEpisode = false;
 	private Integer latestEpisodes = 1;
 	private Boolean onlyFreeDownloads = false;
 	private Boolean onlyAgregated = false;
 	private Boolean ignoreMissing = false;
-	private String quality;
-	private String category;
+	private String quality = null;
+	private String category = null;
 	private Map<String, Object> extraParams;
 	private Long sleepTime = 20000L;
 

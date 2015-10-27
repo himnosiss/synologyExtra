@@ -7,5 +7,5 @@ import ro.bogdan.synology.engine.beans.Searchable;
 
 public interface Search {
 
-	public List<URL> search(Searchable search);
+	public Object[] search(Searchable search);
 }
