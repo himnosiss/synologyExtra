@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,10 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import ro.bogdan.synology.engine.beans.Responsable;
 import ro.bogdan.synology.engine.beans.Searchable;
 import ro.bogdan.synology.search.Search;
 import ro.bogdan.synology.search.impl.Filelist;
+import ro.bogdan.synology.utils.Utils;
 
+@MultipartConfig
 @WebServlet("/searchSeries")
 public class SearchSeries extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -78,17 +82,18 @@ public class SearchSeries extends HttpServlet {
             searchable.setLatestEpisodes(Integer.parseInt(latestEpisodes.trim()));
         }
 
-        if (quality != null && quality.trim().length() > 0) {
+        if (quality != null && quality.trim().length() > 0 && !"any".equals(quality)) {
             searchable.setQuality(quality);
         }
 
         Object[] result = searchEngine.search(searchable);
 
-        List<URL> links = (List<URL>) result[0];
+        List<Responsable> links = (List<Responsable>) result[0];
         String error = (String) result[1];
-
-        resp.getOutputStream().print(searchable.toString() + "<br\\><br\\><br\\><br\\>" + (links != null ? links : error));
-        resp.getOutputStream().close();
+        Utils.processResponse(error, links, resp.getWriter());
+        // resp.getOutputStream().print(searchable.toString() +
+        // "<br\\><br\\><br\\><br\\>" + (links != null ? links : error));
+        // resp.getOutputStream().close();
     }
 
     @Override

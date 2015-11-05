@@ -10,8 +10,10 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
+import ro.bogdan.synology.engine.beans.Responsable;
 import ro.bogdan.synology.engine.beans.Searchable;
 import ro.bogdan.synology.search.Search;
+import ro.bogdan.synology.utils.GlobalContext;
 import ro.bogdan.synology.utils.Utils;
 
 public class Filelist implements Search {
@@ -38,77 +40,89 @@ public class Filelist implements Search {
         s.setSleepTime(0L);
         Filelist f = new Filelist();
         Object[] x = f.search(s);
-        for (SearchedItem link : (List<SearchedItem>)x[0]) {
+        for (Responsable link : (List<Responsable>) x[0]) {
             System.out.println(link);
         }
     }
 
     @Override
     public Object[] search(Searchable search) {
-        List<SearchedItem> result = new ArrayList<Filelist.SearchedItem>();
-        try {
-            String urlString = FILELIST_URL;
-            if (search.getCategory().equals("serie")) {
-                urlString += BROWSE_SERIES;
-            } else if (search.getCategory().equals("movie")) {
-                urlString += BROWSE_MOVIE;
+
+        Object[] res = new Object[2];
+
+        List<Responsable> resp = Utils.searchInHistory(search);
+
+        if (resp == null) {
+            List<Responsable> result = new ArrayList<Responsable>();
+            try {
+                String urlString = FILELIST_URL;
+                if (search.getCategory().equals("serie")) {
+                    urlString += BROWSE_SERIES;
+                } else if (search.getCategory().equals("movie")) {
+                    urlString += BROWSE_MOVIE;
+                }
+                boolean end = false;
+                int i = 0;
+                while (!end && i < 10) {
+                    URL url = grabNextPage(urlString + search.getQuery(), i);
+
+                    // String content = Utils.download(url);
+
+                    String content = Utils.downloadFile(url);
+                    if (content == null) {
+                        break;
+                    }
+                    List<Responsable> searched = crawlForLinks(content);
+                    if (searched != null && searched.size() > 0) {
+                        result.addAll(searched);
+                    } else {
+                        end = true;
+                    }
+                    i++;
+                    // need this to simulate human behavior
+                    try {
+                        Thread.sleep(search.getSleepTime());
+                    } catch (InterruptedException e) {
+                    }
+                }
+            } catch (MalformedURLException e) {
+                log.error(e.getMessage(), e);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
             }
-            boolean end = false;
-            int i = 0;
-            while (!end && i < 10) {
-                URL url = grabNextPage(urlString + search.getQuery(), i);
-                // String content = Utils.download(url);
-                String content = Utils.downloadFile(url);
-                if (content == null) {
-                    break;
-                }
-                List<SearchedItem> searched = crawlForLinks(content);
-                if (searched != null && searched.size() > 0) {
-                    result.addAll(searched);
-                } else {
-                    end = true;
-                }
-                i++;
-                // need this to simulate human behavior
-                try {
-                    Thread.sleep(search.getSleepTime());
-                } catch (InterruptedException e) {
-                }
-            }
-        } catch (MalformedURLException e) {
-            log.error(e.getMessage(), e);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            GlobalContext.history.put(search, result);
+            res = filterResults(result, search);
+        } else {
+            res = filterResults(resp, search);
         }
-        Object[] retult = filterResults(result, search);
-        return retult;
+        return res;
     }
 
-    private Object[] filterResults(List<SearchedItem> result, Searchable search) {
+    private Object[] filterResults(List<Responsable> result, Searchable search) {
         Object[] outcome = new Object[2];
-        List<SearchedItem> filtered = new ArrayList<SearchedItem>();
+        List<Responsable> filtered = new ArrayList<Responsable>();
 
         // let's filter a bit the results
-        for (SearchedItem searchedItem : result) {
+        for (Responsable searchedItem : result) {
 
             if (search.getOnlyAgregated()) {
-                if (!searchedItem.agregated) {
+                if (!searchedItem.isAgregated()) {
                     continue;
                 }
             }
 
             if (search.getOnlyFreeDownloads())
-                if (!searchedItem.free) {
+                if (!searchedItem.isFree()) {
                     continue;
                 }
 
-            if (search.getQuality() != null && !search.getQuality().equals(searchedItem.quality)) {
+            if (search.getQuality() != null && !search.getQuality().equals(searchedItem.getQuality())) {
                 continue;
             }
 
             // block
             boolean in = false;
-            for (Integer serie : searchedItem.season) {
+            for (Integer serie : searchedItem.getSeason()) {
                 if (search.getSeariesNumber().equals(serie)) {
                     in = true;
                     break;
@@ -123,18 +137,18 @@ public class Filelist implements Search {
 
         // deal with the episodes request
         Integer latestEp = 0;
-        for (SearchedItem searchedItem : filtered) {
-            if (searchedItem.episode != null && searchedItem.episode > latestEp) {
-                latestEp = searchedItem.episode;
+        for (Responsable searchedItem : filtered) {
+            if (searchedItem.getEpisode() != null && searchedItem.getEpisode() > latestEp) {
+                latestEp = searchedItem.getEpisode();
             }
         }
 
         // searching for the latest episode or the last X episodes
         if (search.getLatestEpisode() && search.getLatestEpisodes() != null) {
-            List<SearchedItem> filtered2 = new ArrayList<SearchedItem>();
+            List<Responsable> filtered2 = new ArrayList<Responsable>();
 
-            for (SearchedItem searchedItem : filtered) {
-                if ((latestEp - search.getLatestEpisodes()) <= searchedItem.episode) {
+            for (Responsable searchedItem : filtered) {
+                if ((latestEp - search.getLatestEpisodes()) <= searchedItem.getEpisode()) {
                     filtered2.add(searchedItem);
                 }
             }
@@ -152,10 +166,10 @@ public class Filelist implements Search {
         }
 
         if (!search.getOnlyAgregated()) {
-            List<SearchedItem> filtered2 = new ArrayList<SearchedItem>();
-            for (SearchedItem searchedItem : filtered) {
-                if (!(searchedItem.episode != null && search.getStartEpisode() <= searchedItem.episode && searchedItem.episode <= search
-                        .getStopEpisode())) {
+            List<Responsable> filtered2 = new ArrayList<Responsable>();
+            for (Responsable searchedItem : filtered) {
+                if (!(searchedItem.getEpisode() != null && search.getStartEpisode() <= searchedItem.getEpisode() && searchedItem
+                        .getEpisode() <= search.getStopEpisode())) {
                     continue;
                 }
                 filtered2.add(searchedItem);
@@ -168,18 +182,19 @@ public class Filelist implements Search {
                     return outcome;
                 }
             }
-            outcome[0] = filtered2;
+            outcome[0] = cleanDuplicates(filtered2);
             return outcome;
         }
-        
+
         outcome[0] = cleanDuplicates(filtered);
-        if(outcome[0]==null){
+
+        if (outcome[0] == null) {
             outcome[1] = "There are no files...";
         }
         return outcome;
     }
 
-    private List<SearchedItem> cleanDuplicates(List<SearchedItem> filtered2) {
+    private List<Responsable> cleanDuplicates(List<Responsable> filtered2) {
         return filtered2;
     }
 
@@ -194,9 +209,9 @@ public class Filelist implements Search {
         return result;
     }
 
-    protected List<SearchedItem> crawlForLinks(String page) {
+    protected List<Responsable> crawlForLinks(String page) {
         String[] lines = page.split(System.getProperty("line.separator"));
-        List<SearchedItem> searches = new ArrayList<SearchedItem>();
+        List<Responsable> searches = new ArrayList<Responsable>();
         String content = null;
         for (String line : lines) {
             if (line.contains("torrentrow")) {
@@ -213,45 +228,52 @@ public class Filelist implements Search {
             if (!line.contains("torrenttable")) {
                 continue;
             }
-            SearchedItem searched = new SearchedItem();
+            Responsable searched = new Responsable();
             int d1 = line.indexOf("download.php");
             int d2 = line.indexOf(".torrent", d1);
             String url = line.substring(d1, d2 + 8);
             if (line.contains("freeleech")) {
-                searched.free = true;
+                searched.setFree(true);
             }
             try {
-                searched.url = new URL(FILELIST_URL + url);
+                searched.setUrl(new URL(FILELIST_URL + url));
             } catch (MalformedURLException e) {
                 log.error(e.getMessage(), e);
             }
-            searched.name = grabName(url);
-            searched.season = grabSeason(url);
-            searched.episode = grabEpisode(url);
-            searched.quality = grabQuality(url);
-            searched.seed = grapSeed(line);
-            if (searched.season != null && searched.season.length > 0 && searched.episode == null) {
-                searched.agregated = true;
+            searched.setId(grabId(url));
+            searched.setName(grabName(url));
+            searched.setSeason(grabSeason(url));
+            searched.setEpisode(grabEpisode(url));
+            searched.setQuality(grabQuality(url));
+            searched.setSeed(grapSeed(line));
+            if (searched.getSeason() != null && searched.getSeason().length > 0 && searched.getEpisode() == null) {
+                searched.setAgregated(true);
             }
             searches.add(searched);
         }
         return searches;
     }
 
+    private Integer grabId(String url) {
+        String id = url.substring(url.indexOf("id")).substring(3);
+        id = id.replaceFirst("&.*", "").toLowerCase();
+        return Integer.parseInt(id);
+    }
+
     private Integer grapSeed(String line) {
         int start1 = line.indexOf("/>times</");
-        int start = line.indexOf("torrenttable",start1);
-        int end = line.indexOf("torrenttable",start+10);
-        String temp = line.substring(start,end);
-        start = temp.indexOf("<b><font color=")+15;
+        int start = line.indexOf("torrenttable", start1);
+        int end = line.indexOf("torrenttable", start + 10);
+        String temp = line.substring(start, end);
+        start = temp.indexOf("<b><font color=") + 15;
         temp = temp.substring(start);
-        
-        start = temp.indexOf(">")+1;
+
+        start = temp.indexOf(">") + 1;
         end = temp.indexOf("<");
-        if(end<start){
+        if (end < start) {
             return 0;
-        }else{
-            return Integer.parseInt(temp.substring(start,end));
+        } else {
+            return Integer.parseInt(temp.substring(start, end));
         }
     }
 
@@ -301,49 +323,34 @@ public class Filelist implements Search {
         return "unknown";
     }
 
-    private String zfill(String serie, int length) {
-        if (serie.length() >= length) {
-            return serie;
-        }
-        char[] result = new char[length];
-        char[] serieArray = serie.toCharArray();
-        for (int i = 0; i < result.length; i++) {
-            if (i < (result.length - serieArray.length)) {
-                result[i] = '0';
-            } else {
-                result[i] = serieArray[i - serieArray.length];
-            }
-        }
-        return String.valueOf(result);
-    }
+    // private String zfill(String serie, int length) {
+    // if (serie.length() >= length) {
+    // return serie;
+    // }
+    // char[] result = new char[length];
+    // char[] serieArray = serie.toCharArray();
+    // for (int i = 0; i < result.length; i++) {
+    // if (i < (result.length - serieArray.length)) {
+    // result[i] = '0';
+    // } else {
+    // result[i] = serieArray[i - serieArray.length];
+    // }
+    // }
+    // return String.valueOf(result);
+    // }
 
-    private class SearchedItem {
-        public Integer seed;
-        public URL url = null;
-        public boolean agregated;
-        public Integer episode;
-        public Integer[] season;
-        public boolean free;
-        public String quality;
-        public String name;
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            // sb.append(" Url: ").append(url);
-            sb.append(" Name: ").append(name);
-            sb.append(" Season: ");
-            for (Integer integer : season) {
-                sb.append(integer).append(", ");
-            }
-            sb.append(" Episode: ").append(episode);
-            sb.append(" Free: ").append(free);
-            sb.append(" Quality: ").append(quality);
-            sb.append(" Agregated: ").append(agregated);
-            sb.append(" Seed: ").append(seed);
-            return sb.toString();
-
-        }
-    }
+    // private class SearchedItem {
+    // public Integer id;
+    // public Integer seed;
+    // public URL url = null;
+    // public boolean agregated;
+    // public Integer episode;
+    // public Integer[] season;
+    // public boolean free;
+    // public String quality;
+    // public String name;
+    //
+    // @Override
+    // }
 
 }

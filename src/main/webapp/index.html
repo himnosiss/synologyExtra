@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>search</title>
-</head>
-<body>
-	<script type="text/javascript">
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
 		function validateForm() {
 			var form = document.forms["queryForm"];
 
@@ -109,6 +108,9 @@
 			}
 		}
 	</script>
+</head>
+<body>
+	
 
 	<form name="queryForm" action="searchSeries" method="post" onsubmit="return validateForm()">
 		<table>
@@ -123,12 +125,12 @@
 			<tr>
 				<td><label>Query string:</label></td>
 				<td><input type="text" name="query" size="50"
-					value="test test test"></td>
+					value="the big bang"></td>
 			</tr>
 			<tr>
 				<td><label>Series number:</label></td>
 				<td><input type="text" name="serie" title="Series name"
-					size="50" value="1"></td>
+					size="50" value="9"></td>
 			</tr>
 			<tr>
 				<td><label>Starting episode:</label></td>
@@ -164,7 +166,8 @@
 			<tr>
 				<td><label>Quality:</label></td>
 				<td><select name="quality" >
-						<option value="half_hd" selected="selected">740</option>
+						<option value="any" selected="selected">any</option>
+						<option value="half_hd">740</option>
 						<option value="full_hd">1080</option>
 						<option value="sd">480</option>
 				</select></td>
@@ -176,11 +179,14 @@
 			</tr>
 			<tr>
 
-				<td colspan="2"><input type="submit" value="Search"
-					style="float: right;"></td>
+				<td colspan="2"><input type="button" value="Search" style="float: right;" onclick=AJAXSubmit(document.forms[0])></td>
 			</tr>
-
 		</table>
 	</form>
+	
+	<div id = "content">
+	
+	</div>
+	
 </body>
 </html>

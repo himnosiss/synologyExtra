@@ -4,129 +4,135 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Searchable {
-	private String query;
-	private Integer seariesNumber = null;
-	private Integer startEpisode = null;
-	private Integer stopEpisode = null;
-	private Boolean latestEpisode = false;
-	private Integer latestEpisodes = 1;
-	private Boolean onlyFreeDownloads = false;
-	private Boolean onlyAgregated = false;
-	private Boolean ignoreMissing = false;
-	private String quality = null;
-	private String category = null;
-	private Map<String, Object> extraParams;
-	private Long sleepTime = 20000L;
+    private String query;
+    private Integer seariesNumber = null;
+    private Integer startEpisode = null;
+    private Integer stopEpisode = null;
+    private Boolean latestEpisode = false;
+    private Integer latestEpisodes = 1;
+    private Boolean onlyFreeDownloads = false;
+    private Boolean onlyAgregated = false;
+    private Boolean ignoreMissing = false;
+    private String quality = null;
+    private String category = null;
+    private Map<String, Object> extraParams;
+    private Long sleepTime = 20000L;
+    private Long timestamp;
+    private long expInterval = 5000;
 
-	public String getQuality() {
-		return quality;
-	}
+    public Searchable(){
+        this.timestamp = System.currentTimeMillis();
+    }
+    
+    public String getQuality() {
+        return quality;
+    }
 
-	public void setQuality(String quality) {
-		this.quality = quality;
-	}
+    public void setQuality(String quality) {
+        this.quality = quality;
+    }
 
-	public String getQuery() {
-		return query;
-	}
+    public String getQuery() {
+        return query;
+    }
 
-	public void setQuery(String query) {
-		this.query = query;
-	}
+    public void setQuery(String query) {
+        this.query = query;
+    }
 
-	public Integer getSeariesNumber() {
-		return seariesNumber;
-	}
+    public Integer getSeariesNumber() {
+        return seariesNumber;
+    }
 
-	public void setSeariesNumber(Integer seariesNumber) {
-		this.seariesNumber = seariesNumber;
-	}
+    public void setSeariesNumber(Integer seariesNumber) {
+        this.seariesNumber = seariesNumber;
+    }
 
-	public Integer getStartEpisode() {
-		return startEpisode;
-	}
+    public Integer getStartEpisode() {
+        return startEpisode;
+    }
 
-	public void setStartEpisode(Integer startEpisode) {
-		this.startEpisode = startEpisode;
-	}
+    public void setStartEpisode(Integer startEpisode) {
+        this.startEpisode = startEpisode;
+    }
 
-	public Integer getStopEpisode() {
-		return stopEpisode;
-	}
+    public Integer getStopEpisode() {
+        return stopEpisode;
+    }
 
-	public void setStopEpisode(Integer stopEpisode) {
-		this.stopEpisode = stopEpisode;
-	}
+    public void setStopEpisode(Integer stopEpisode) {
+        this.stopEpisode = stopEpisode;
+    }
 
-	public Boolean getOnlyFreeDownloads() {
-		return onlyFreeDownloads;
-	}
+    public Boolean getOnlyFreeDownloads() {
+        return onlyFreeDownloads;
+    }
 
-	public void setOnlyFreeDownloads(Boolean onlyFreeDownloads) {
-		this.onlyFreeDownloads = onlyFreeDownloads;
-	}
+    public void setOnlyFreeDownloads(Boolean onlyFreeDownloads) {
+        this.onlyFreeDownloads = onlyFreeDownloads;
+    }
 
-	public Boolean getOnlyAgregated() {
-		return onlyAgregated;
-	}
+    public Boolean getOnlyAgregated() {
+        return onlyAgregated;
+    }
 
-	public void setOnlyAgregated(Boolean onlyAgregated) {
-		this.onlyAgregated = onlyAgregated;
-	}
+    public void setOnlyAgregated(Boolean onlyAgregated) {
+        this.onlyAgregated = onlyAgregated;
+    }
 
-	public Map<String, Object> getExtraParams() {
-		return extraParams;
-	}
+    public Map<String, Object> getExtraParams() {
+        return extraParams;
+    }
 
-	public void setExtraParams(Map<String, Object> extraParams) {
-		this.extraParams = extraParams;
-	}
+    public void setExtraParams(Map<String, Object> extraParams) {
+        this.extraParams = extraParams;
+    }
 
-	public void addExtraParams(String key, Object value) {
-		if (this.extraParams == null) {
-			this.extraParams = new HashMap<String, Object>();
-		}
-		this.extraParams.put(key, value);
-	}
+    public void addExtraParams(String key, Object value) {
+        if (this.extraParams == null) {
+            this.extraParams = new HashMap<String, Object>();
+        }
+        this.extraParams.put(key, value);
+    }
 
-	public Boolean getLatestEpisode() {
-		return latestEpisode;
-	}
+    public Boolean getLatestEpisode() {
+        return latestEpisode;
+    }
 
-	public void setLatestEpisode(Boolean latestEpisode) {
-		this.latestEpisode = latestEpisode;
-	}
+    public void setLatestEpisode(Boolean latestEpisode) {
+        this.latestEpisode = latestEpisode;
+    }
 
-	public Integer getLatestEpisodes() {
-		return latestEpisodes;
-	}
+    public Integer getLatestEpisodes() {
+        return latestEpisodes;
+    }
 
-	public void setLatestEpisodes(Integer latestEpisodes) {
-		this.latestEpisodes = latestEpisodes;
-	}
+    public void setLatestEpisodes(Integer latestEpisodes) {
+        this.latestEpisodes = latestEpisodes;
+    }
 
-	public Boolean getIgnoreMissing() {
-		return ignoreMissing;
-	}
+    public Boolean getIgnoreMissing() {
+        return ignoreMissing;
+    }
 
-	public void setIgnoreMissing(Boolean ignoreMissing) {
-		this.ignoreMissing = ignoreMissing;
-	}
+    public void setIgnoreMissing(Boolean ignoreMissing) {
+        this.ignoreMissing = ignoreMissing;
+    }
 
-	@Override
-	public String toString() {
-		return "query:" + query + " serie:" + seariesNumber + " firstEpisode:" + startEpisode + " lastEpisode:"
-		        + stopEpisode + " ignore missing:" + ignoreMissing + " onlyFree:" + onlyFreeDownloads + " onlyAgregated:" + onlyAgregated
-		        + " latestEpisode:" + latestEpisode + " latestEpisodes:" + latestEpisodes;
-	}
+    @Override
+    public String toString() {
+        return "query:" + query + " serie:" + seariesNumber + " firstEpisode:" + startEpisode + " lastEpisode:" + stopEpisode
+                + " ignore missing:" + ignoreMissing + " onlyFree:" + onlyFreeDownloads + " onlyAgregated:" + onlyAgregated
+                + " latestEpisode:" + latestEpisode + " latestEpisodes:" + latestEpisodes;
+    }
 
-	public String getCategory() {
-		return category;
-	}
+    public String getCategory() {
+        return category;
+    }
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public Long getSleepTime() {
         return sleepTime;
@@ -135,5 +141,33 @@ public class Searchable {
     public void setSleepTime(Long sleepTime) {
         this.sleepTime = sleepTime;
     }
-	
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Searchable)) {
+            return false;
+        }
+        Searchable s = (Searchable) obj;
+        if (this.query.equals(s.query) && this.category.equals(s.category)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.query.hashCode();
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public long getExpInterval() {
+        return expInterval;
+    }
+
+    public void setExpInterval(long expInterval) {
+        this.expInterval = expInterval;
+    }
 }
