@@ -66,9 +66,11 @@ public class Filelist implements Search {
                 while (!end && i < 10) {
                     URL url = grabNextPage(urlString + search.getQuery(), i);
 
-                    // String content = Utils.download(url);
+                     String content = Utils.download(url);
 
-                    String content = Utils.downloadFile(url);
+//                    String content = Utils.downloadFile(url);
+                     
+                     
                     if (content == null) {
                         break;
                     }
@@ -222,6 +224,9 @@ public class Filelist implements Search {
                 log.info("Finished searching!");
                 return null;
             }
+        }
+        if(content==null){
+        	return null;
         }
         lines = content.split("torrentrow");
         for (String line : lines) {

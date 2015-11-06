@@ -41,6 +41,7 @@ public class SearchSeries extends HttpServlet {
         String latestEpisodes = req.getParameter("latestEpisodes");
         String category = req.getParameter("category");
         String quality = req.getParameter("quality");
+        String delay = req.getParameter("delay");
 
         if (query != null) {
             query = query.replaceAll("\\s", "\\.");
@@ -86,6 +87,10 @@ public class SearchSeries extends HttpServlet {
             searchable.setQuality(quality);
         }
 
+        if(!Utils.isBlank(delay)){
+        	searchable.setSleepTime(Long.parseLong(delay)*1000);
+        }
+        
         Object[] result = searchEngine.search(searchable);
 
         List<Responsable> links = (List<Responsable>) result[0];
